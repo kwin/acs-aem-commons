@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- ====================================================================== -->
     <!-- P A R E N T P R O J E C T D E S C R I P T I O N -->
@@ -17,71 +18,68 @@
     <artifactId>acs-aem-commons-content</artifactId>
     <name>ACS AEM Commons Package</name>
     <packaging>content-package</packaging>
+    <description>ACS AEM Commons container content package which delivers acs-aem-commons-ui.apps and acs-aem-commons-ui.content.</description>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/content/jcr_root</directory>
-                <excludes>
-                    <exclude>**/.vlt</exclude>
-                    <exclude>**/.vltignore</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/content/META-INF/vault/definition</directory>
-                <targetPath>../vault-work/META-INF/vault/definition</targetPath>
-            </resource>
-            <resource>
-                <directory>src/main/content/META-INF/vault</directory>
-                <includes>
-                    <include>nodetypes.cnd</include>
-                    <include>privileges.xml</include>
-                </includes>
-                <targetPath>../vault-work/META-INF/vault</targetPath>
-            </resource>
-            <resource>
-                <directory>src/main/resources/META-INF</directory>
-                <targetPath>../vault-work/META-INF</targetPath>
-            </resource>
-        </resources>
-
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <includeEmptyDirs>true</includeEmptyDirs>
-                </configuration>
-            </plugin>
 
             <plugin>
-                <groupId>com.day.jcr.vault</groupId>
-                <artifactId>content-package-maven-plugin</artifactId>
-                <extensions>true</extensions>
+                <groupId>org.apache.jackrabbit</groupId>
+                <artifactId>filevault-package-maven-plugin</artifactId>
                 <configuration>
-                    <group>adobe/consulting</group>
-                    <properties>
-                        <description>ACS AEM Commons container content package which delivers acs-aem-commons-ui.apps and acs-aem-commons-ui.content.</description>
-                    </properties>
-                    <filterSource>src/main/content/META-INF/vault/filter.xml</filterSource>
-                    <targetURL>http://${crx.host}:${crx.port}${crx.contextRoot}/crx/packmgr/service.jsp</targetURL>
+                    <packageType>container</packageType>
+                    <embeddeds>
+                        <embedded>
+                            <artifactId>acs-aem-commons-bundle</artifactId>
+                            <target>/apps/acs-commons/install</target>
+                            <filter>true</filter>
+                            <isAllVersionsFilter>true</isAllVersionsFilter>
+                        </embedded>
+                    </embeddeds>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>default-generate-metadata</id>
+                        <configuration>
+                            <subPackages>
+                        <subPackage>
+                            <artifactId>acs-aem-commons-ui.apps</artifactId>
+                            <classifier></classifier>
+                            <filter>true</filter>
+                            <isAllVersionsFilter>true</isAllVersionsFilter>
+                        </subPackage>
+                        <subPackage>
+                            <artifactId>acs-aem-commons-ui.content</artifactId>
+                            <classifier></classifier>
+                            <filter>true</filter>
+                            <isAllVersionsFilter>true</isAllVersionsFilter>
+                        </subPackage>
+                    </subPackages>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>default-package</id>
+                    </execution>
+                    <execution>
+                        <id>generate-metadata-min-package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>generate-metadata</goal>
+                        </goals>
                         <configuration>
                             <subPackages>
                                 <subPackage>
-                                    <groupId>${project.groupId}</groupId>
                                     <artifactId>acs-aem-commons-ui.apps</artifactId>
-                                    <scope>runtime</scope> <!-- this is hacky, but seems to be the easiest way to include the min artifacts since there's no way to specify a blank classifier -->
+                                    <classifier>min</classifier>
                                     <filter>true</filter>
+                                    <isAllVersionsFilter>true</isAllVersionsFilter>
                                 </subPackage>
                                 <subPackage>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>acs-aem-commons-ui.content</artifactId>
-                                    <scope>runtime</scope>
+                                    <classifier>min</classifier>
                                     <filter>true</filter>
+                                    <isAllVersionsFilter>true</isAllVersionsFilter>
                                 </subPackage>
                             </subPackages>
                         </configuration>
@@ -94,20 +92,6 @@
                         </goals>
                         <configuration>
                             <finalName>${project.build.finalName}-min</finalName>
-                            <subPackages>
-                                <subPackage>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>acs-aem-commons-ui.apps</artifactId>
-                                    <classifier>min</classifier>
-                                    <filter>true</filter>
-                                </subPackage>
-                                <subPackage>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>acs-aem-commons-ui.content</artifactId>
-                                    <classifier>min</classifier>
-                                    <filter>true</filter>
-                                </subPackage>
-                            </subPackages>
                         </configuration>
                     </execution>
                 </executions>
@@ -124,8 +108,9 @@
             </plugin>
 
             <!--
-            Since the min package execution of the content-package-maven-plugin is run second, the min artifact will be attached as the default project artifact.
-            So we have to override that to switch back to the originally produced artifact.
+                Since the min package execution of the content-package-maven-plugin is run second, the min artifact will be attached as the default 
+                project artifact.
+                So we have to override that to switch back to the originally produced artifact.
             -->
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
@@ -139,8 +124,8 @@
                         </goals>
                         <configuration>
                             <source>
-                                def mainArtifact = new File(project.build.directory, "${project.build.finalName}.zip"); 
-                                project.getArtifact().setFile(mainArtifact); 
+                                def mainArtifact = new File(project.build.directory, "${project.build.finalName}.zip");
+                                project.getArtifact().setFile(mainArtifact);
                             </source>
                         </configuration>
                     </execution>
@@ -180,10 +165,10 @@
                         <checklist>acs-internal</checklist>
                     </checklists>
                     <!-- use mvn oakpal:webster -Dwebster.repositoryHome=/path/to/crx-quickstart/repository to update
-                    nodetypes.cnd and privileges.xml in the package -->
+                        nodetypes.cnd and privileges.xml in the package -->
                     <websterTargets>
-                        <nodetypes />
-                        <privileges />
+                        <nodetypes/>
+                        <privileges/>
                     </websterTargets>
                 </configuration>
                 <executions>
@@ -290,6 +275,12 @@
             <version>${project.version}</version>
             <type>zip</type>
             <classifier>min</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>acs-aem-commons-bundle</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

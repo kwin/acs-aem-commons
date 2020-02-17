@@ -17,62 +17,20 @@
     <artifactId>acs-aem-commons-ui.apps</artifactId>
     <name>ACS AEM Commons UI.Apps Package</name>
     <packaging>content-package</packaging>
+    <description>ACS AEM Commons content package containing code (/apps).</description>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/content/jcr_root</directory>
-                <excludes>
-                    <exclude>**/.vlt</exclude>
-                    <exclude>**/.vltignore</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/content/META-INF/vault/definition</directory>
-                <targetPath>../vault-work/META-INF/vault/definition</targetPath>
-            </resource>
-            <resource>
-                <directory>src/main/content/META-INF/vault</directory>
-                <includes>
-                    <include>nodetypes.cnd</include>
-                    <include>privileges.xml</include>
-                </includes>
-                <targetPath>../vault-work/META-INF/vault</targetPath>
-            </resource>
-            <resource>
-                <directory>src/main/resources/META-INF</directory>
-                <targetPath>../vault-work/META-INF</targetPath>
-            </resource>
-        </resources>
 
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
+                <groupId>org.apache.jackrabbit</groupId>
+                <artifactId>filevault-package-maven-plugin</artifactId>
                 <configuration>
-                    <includeEmptyDirs>true</includeEmptyDirs>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>com.day.jcr.vault</groupId>
-                <artifactId>content-package-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <group>adobe/consulting</group>
+                    <packageType>application</packageType>
                     <properties>
-                        <description>ACS AEM Commons content package containing code (/apps).</description>
                         <!-- overwrite rep:ACE nodes defining policies for acs-aem-commons-owned service principals -->
                         <acHandling>merge</acHandling>
                     </properties>
-                    <filterSource>src/main/content/META-INF/vault/filter.xml</filterSource>
-                    <embeddeds>
-                        <embedded>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>acs-aem-commons-bundle</artifactId>
-                            <target>/apps/acs-commons/install</target>
-                        </embedded>
-                    </embeddeds>
                     <dependencies>
                         <dependency>
                             <group>day/cq60/product</group>
@@ -80,7 +38,6 @@
                             <version>[6.3.64,)</version>
                         </dependency>
                     </dependencies>
-                    <targetURL>http://${crx.host}:${crx.port}${crx.contextRoot}/crx/packmgr/service.jsp</targetURL>
                 </configuration>
             </plugin>
 
@@ -245,7 +202,7 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
-                            <source>${pom.basedir}/../content/src/main/script/CreateMinPackage.groovy</source>
+                            <source>${project.basedir}/../content/src/main/script/CreateMinPackage.groovy</source>
                         </configuration>
                     </execution>
                 </executions>

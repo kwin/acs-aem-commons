@@ -278,10 +278,8 @@
                 sling:resourceType="granite/ui/components/coral/foundation/panel/railpanel"/>
         </rails>
     </jcr:content>
-    <createlistwizard/>
     <pagecolumnpreview
         jcr:primaryType="nt:unstructured"
         sling:resourceType="cq/gui/components/coral/admin/page/columnpreview"
         path="${requestPathInfo.suffix}"/>
-    <meta/>
 </jcr:root>

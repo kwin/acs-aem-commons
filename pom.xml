@@ -102,10 +102,44 @@
                     <artifactId>maven-sling-plugin</artifactId>
                     <version>2.3.8</version>
                 </plugin>
+                <!-- creating content packages -->
+                <plugin>
+                    <groupId>org.apache.jackrabbit</groupId>
+                    <artifactId>filevault-package-maven-plugin</artifactId>
+                    <version>1.1.1-SNAPSHOT</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <group>adobe/consulting</group>
+                        <filterSource>src/main/content/META-INF/vault/filter.xml</filterSource>
+                        <validatorsSettings>
+                            <jackrabbit-filter>
+                                <options>
+                                    <severityForUncoveredFilterRootAncestors>WARN</severityForUncoveredFilterRootAncestors>
+                                </options>
+                            </jackrabbit-filter>
+                            <jackrabbit-packagetype>
+                                <options>
+                                    <allowComplexFilterRulesInApplicationPackages>true</allowComplexFilterRulesInApplicationPackages>
+                                </options>
+                            </jackrabbit-packagetype>
+                        </validatorsSettings>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.jackrabbit.vault</groupId>
+                            <artifactId>vault-validation</artifactId>
+                            <version>3.4.3-SNAPSHOT</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <!-- deploying content packages -->
                 <plugin>
                     <groupId>com.day.jcr.vault</groupId>
                     <artifactId>content-package-maven-plugin</artifactId>
-                    <version>0.0.24</version>
+                    <version>1.0.2</version>
+                    <configuration>
+                        <targetURL>http://${crx.host}:${crx.port}${crx.contextRoot}/crx/packmgr/service.jsp</targetURL>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>
